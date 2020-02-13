@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * biz包下的该类提供给 configService和adminService使用
+ */
 @Service
 public class AdminService {
   private final static Logger logger = LoggerFactory.getLogger(AdminService.class);
@@ -34,15 +37,16 @@ public class AdminService {
 
   @Transactional
   public App createNewApp(App app) {
+    // 保存 App 对象到数据库
     String createBy = app.getDataChangeCreatedBy();
     App createdApp = appService.save(app);
 
     String appId = createdApp.getAppId();
-
+    // 创建 App 的默认命名空间 "application"
     appNamespaceService.createDefaultAppNamespace(appId, createBy);
-
+    //创建 App 的默认集群 "default"
     clusterService.createDefaultCluster(appId, createBy);
-
+    //创建 Cluster的默认命名空间
     namespaceService.instanceOfAppNamespaces(appId, ConfigConsts.CLUSTER_NAME_DEFAULT, createBy);
 
     return app;

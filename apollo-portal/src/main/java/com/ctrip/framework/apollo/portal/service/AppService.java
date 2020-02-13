@@ -111,27 +111,29 @@ public class AppService {
   @Transactional
   public App createAppInLocal(App app) {
     String appId = app.getAppId();
+    // 判断AppId是否已经存在对应的App对象，存在则抛出 BadRequestException 异常
     App managedApp = appRepository.findByAppId(appId);
 
     if (managedApp != null) {
       throw new BadRequestException(String.format("App already exists. AppId = %s", appId));
     }
-
+    // 获取UserInfo 对象，对象不存在则抛出BadRequestException 异常  <Pb4>
     UserInfo owner = userService.findByUserId(app.getOwnerName());
     if (owner == null) {
       throw new BadRequestException("Application's owner not exist.");
     }
     app.setOwnerEmail(owner.getEmail());
-
+    //获取当前用户，设置App的操作人和修改人
     String operator = userInfoHolder.getUser().getUserId();
     app.setDataChangeCreatedBy(operator);
     app.setDataChangeLastModifiedBy(operator);
-
+    //保存 App 对象到数据库中
     App createdApp = appRepository.save(app);
-
+    // 创建 App 的默认命名空间 "application" <Pb1>
     appNamespaceService.createDefaultAppNamespace(appId);
+    //初始化 App 角色  <Pb2>
     roleInitializationService.initAppRoles(createdApp);
-
+    // Tracer日志  <Pb3> 需要接入 dianping.cat
     Tracer.logEvent(TracerEventType.CREATE_APP, appId);
 
     return createdApp;

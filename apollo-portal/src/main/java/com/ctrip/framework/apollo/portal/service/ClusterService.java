@@ -27,11 +27,13 @@ public class ClusterService {
   }
 
   public ClusterDTO createCluster(Env env, ClusterDTO cluster) {
+    //根据"appId"和"name"调用 AdminService的Cluster接口校验唯一性
     if (!clusterAPI.isClusterUnique(cluster.getAppId(), env, cluster.getName())) {
       throw new BadRequestException(String.format("cluster %s already exists.", cluster.getName()));
     }
+    //创建 Cluster 到 AdminService
     ClusterDTO clusterDTO = clusterAPI.create(env, cluster);
-
+    //dianping.cat 日志
     Tracer.logEvent(TracerEventType.CREATE_CLUSTER, cluster.getAppId(), "0", cluster.getName());
 
     return clusterDTO;

@@ -8,6 +8,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
+/**
+ * 提供给admin-service和config-service使用的AppRepository数据访问
+ */
 public interface AppRepository extends PagingAndSortingRepository<App, Long> {
 
   @Query("SELECT a from App a WHERE a.name LIKE %:name%")

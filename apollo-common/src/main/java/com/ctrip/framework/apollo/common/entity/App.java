@@ -10,16 +10,25 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+/**
+ * 1、 @SQLDelete + @Where 删除时使用逻辑删除
+ */
 @Entity
 @Table(name = "App")
 @SQLDelete(sql = "Update App set isDeleted = 1 where id = ?")
 @Where(clause = "isDeleted = 0")
 public class App extends BaseEntity {
 
+  /**
+   * APP 名
+   */
   @NotBlank(message = "Name cannot be blank")
   @Column(name = "Name", nullable = false)
   private String name;
 
+  /**
+   * APP 编号
+   */
   @NotBlank(message = "AppId cannot be blank")
   @Pattern(
       regexp = InputValidator.CLUSTER_NAMESPACE_VALIDATOR,
@@ -28,16 +37,30 @@ public class App extends BaseEntity {
   @Column(name = "AppId", nullable = false)
   private String appId;
 
+  /**
+   * 部门编号
+   */
   @Column(name = "OrgId", nullable = false)
   private String orgId;
 
+  /**
+   * 部门名
+   * 冗余字段
+   */
   @Column(name = "OrgName", nullable = false)
   private String orgName;
 
+  /**
+   * 拥有人名
+   *
+   */
   @NotBlank(message = "OwnerName cannot be blank")
   @Column(name = "OwnerName", nullable = false)
   private String ownerName;
 
+  /**
+   * 拥有人邮箱
+   */
   @NotBlank(message = "OwnerEmail cannot be blank")
   @Column(name = "OwnerEmail", nullable = false)
   private String ownerEmail;

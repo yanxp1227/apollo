@@ -7,6 +7,9 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
 
+/**
+ * 提供给 Admin Service 和 Config Service 的数据访问层
+ */
 public interface ClusterRepository extends PagingAndSortingRepository<Cluster, Long> {
 
   List<Cluster> findByAppIdAndParentClusterId(String appId, Long parentClusterId);

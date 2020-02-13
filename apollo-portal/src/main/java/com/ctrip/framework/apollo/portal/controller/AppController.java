@@ -52,6 +52,9 @@ public class AppController {
   private final UserInfoHolder userInfoHolder;
   private final AppService appService;
   private final PortalSettings portalSettings;
+  /**
+   * Spring 事件发布者
+   */
   private final ApplicationEventPublisher publisher;
   private final RolePermissionService rolePermissionService;
   private final RoleInitializationService roleInitializationService;
@@ -105,23 +108,32 @@ public class AppController {
     return appService.findByAppIds(appIds, page);
   }
 
+  /**
+   * 创建APP
+   *
+   * @param appModel
+   * @return
+   */
   @PreAuthorize(value = "@permissionValidator.hasCreateApplicationPermission()")
   @PostMapping
   public App create(@Valid @RequestBody AppModel appModel) {
 
+    // 将AppModel转成App对象,采用的时重新赋值
     App app = transformToApp(appModel);
 
+    // 保存App对象到数据库中
     App createdApp = appService.createAppInLocal(app);
 
+    //发布 AppCreationEvent 创建事件
     publisher.publishEvent(new AppCreationEvent(createdApp));
-
+    // 授予 App 管理员的角色  <Pb1>
     Set<String> admins = appModel.getAdmins();
     if (!CollectionUtils.isEmpty(admins)) {
       rolePermissionService
           .assignRoleToUsers(RoleUtils.buildAppMasterRoleName(createdApp.getAppId()),
               admins, userInfoHolder.getUser().getUserId());
     }
-
+    // 返回 App 对象
     return createdApp;
   }
 
