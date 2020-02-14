@@ -105,12 +105,14 @@ public class AppNamespaceService {
   public AppNamespace createAppNamespaceInLocal(AppNamespace appNamespace, boolean appendNamespacePrefix) {
     String appId = appNamespace.getAppId();
 
+    //校验App是否存在,若不存在则抛出 BadRequestException 异常
     //add app org id as prefix
     App app = appService.load(appId);
     if (app == null) {
       throw new BadRequestException("App not exist. AppId = " + appId);
     }
 
+    // 拼接 AppNamespace 的 `name` 属性。
     StringBuilder appNamespaceName = new StringBuilder();
     //add prefix postfix
     appNamespaceName
@@ -118,15 +120,17 @@ public class AppNamespaceService {
         .append(appNamespace.getName())
         .append(appNamespace.formatAsEnum() == ConfigFileFormat.Properties ? "" : "." + appNamespace.getFormat());
     appNamespace.setName(appNamespaceName.toString());
-
+    //防止数据库报错(not null),将AppNamespace的 `comment` 属性为空串.
     if (appNamespace.getComment() == null) {
       appNamespace.setComment("");
     }
 
+    //校验 AppNamespace的`form` 是否合法
     if (!ConfigFileFormat.isValidFormat(appNamespace.getFormat())) {
      throw new BadRequestException("Invalid namespace format. format must be properties、json、yaml、yml、xml");
     }
 
+    //设置AppNamespace的创建人和修改人
     String operator = appNamespace.getDataChangeCreatedBy();
     if (StringUtils.isEmpty(operator)) {
       operator = userInfoHolder.getUser().getUserId();
@@ -135,10 +139,12 @@ public class AppNamespaceService {
 
     appNamespace.setDataChangeLastModifiedBy(operator);
 
+    //公用类型, 校验 `name` 在全局唯一
     // globally uniqueness check for public app namespace
     if (appNamespace.isPublic()) {
       checkAppNamespaceGlobalUniqueness(appNamespace);
     } else {
+      //私有类型,校验 `name` 在 App下唯一
       // check private app namespace
       if (appNamespaceRepository.findByAppIdAndName(appNamespace.getAppId(), appNamespace.getName()) != null) {
         throw new BadRequestException("Private AppNamespace " + appNamespace.getName() + " already exists!");
@@ -156,8 +162,10 @@ public class AppNamespaceService {
   }
 
   private void checkAppNamespaceGlobalUniqueness(AppNamespace appNamespace) {
+    //校验 AppNamespace 在公用类型为全局唯一
     checkPublicAppNamespaceGlobalUniqueness(appNamespace);
 
+    //获取 AppNamespace的 `name` 在私有类型的所有列表
     List<AppNamespace> privateAppNamespaces = findAllPrivateAppNamespaces(appNamespace.getName());
 
     if (!CollectionUtils.isEmpty(privateAppNamespaces)) {
@@ -176,6 +184,7 @@ public class AppNamespaceService {
   }
 
   private void checkPublicAppNamespaceGlobalUniqueness(AppNamespace appNamespace) {
+    //校验 `name` 在AppNamespace 全局唯一
     AppNamespace publicAppNamespace = findPublicAppNamespace(appNamespace.getName());
     if (publicAppNamespace != null) {
       throw new BadRequestException("AppNamespace " + appNamespace.getName() + " already exists as public namespace in appId: " + publicAppNamespace.getAppId() + "!");

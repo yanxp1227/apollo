@@ -79,16 +79,20 @@ public class DefaultRolePermissionService implements RolePermissionService {
     @Transactional
     public Set<String> assignRoleToUsers(String roleName, Set<String> userIds,
                                          String operatorUserId) {
+        // 判断`roleName` 是否存在,不存在则抛出 IllegalStateException 异常
         Role role = findRoleByRoleName(roleName);
         Preconditions.checkState(role != null, "Role %s doesn't exist!", roleName);
 
+        // 获取 角色`id`和用户列表`id`的所有UserRole
         List<UserRole> existedUserRoles =
                 userRoleRepository.findByUserIdInAndRoleId(userIds, role.getId());
+        //获取List<UserRole> 去重 `id` 的Set集合
         Set<String> existedUserIds =
             existedUserRoles.stream().map(UserRole::getUserId).collect(Collectors.toSet());
-
+        // userIds 中未找到对应的UserRole的 User `id` 列表
         Set<String> toAssignUserIds = Sets.difference(userIds, existedUserIds);
 
+        //拼装UserRole
         Iterable<UserRole> toCreate = toAssignUserIds.stream().map(userId -> {
             UserRole userRole = new UserRole();
             userRole.setRoleId(role.getId());
@@ -98,6 +102,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
             return userRole;
         }).collect(Collectors.toList());
 
+        //保存UserRole
         userRoleRepository.saveAll(toCreate);
         return toAssignUserIds;
     }

@@ -17,7 +17,7 @@ public abstract class RefreshablePropertySource extends MapPropertySource {
   }
 
   /**
-   * refresh property
+   * refresh property from serverconfig table
    */
   protected abstract void refresh();
 

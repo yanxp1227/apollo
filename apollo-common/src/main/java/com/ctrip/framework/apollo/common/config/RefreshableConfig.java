@@ -19,7 +19,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
-
+/**
+ * 刷新serverConfig表key和value到内存的基类
+ */
 public abstract class RefreshableConfig {
 
   private static final Logger logger = LoggerFactory.getLogger(RefreshableConfig.class);
@@ -60,6 +62,9 @@ public abstract class RefreshableConfig {
         executorService =
         Executors.newScheduledThreadPool(1, ApolloThreadFactory.create("ConfigRefresher", true));
 
+
+    //定时任务:服务器启动后60秒执行第一次,之后任务间隔为60秒一个周期执行
+    //循环刷新serverConfig表中的配置信息并保存到JVM内存中
     executorService
         .scheduleWithFixedDelay(() -> {
           try {

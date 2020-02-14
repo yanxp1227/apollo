@@ -33,6 +33,7 @@ public class PortalDBPropertySource extends RefreshablePropertySource {
     super("DBConfig", Maps.newConcurrentMap());
   }
 
+
   @Override
   protected void refresh() {
     Iterable<ServerConfig> dbConfigs = serverConfigRepository.findAll();
