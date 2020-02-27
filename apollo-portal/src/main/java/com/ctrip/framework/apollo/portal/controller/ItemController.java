@@ -58,11 +58,12 @@ public class ItemController {
   public void modifyItemsByText(@PathVariable String appId, @PathVariable String env,
                                 @PathVariable String clusterName, @PathVariable String namespaceName,
                                 @RequestBody NamespaceTextModel model) {
+    // 设置 PathVariable 到 `model` 中
     model.setAppId(appId);
     model.setClusterName(clusterName);
     model.setEnv(env);
     model.setNamespaceName(namespaceName);
-
+    // 批量更新一个 Namespace 下的 Item 们
     configService.updateConfigItemByText(model);
   }
 
@@ -71,17 +72,20 @@ public class ItemController {
   public ItemDTO createItem(@PathVariable String appId, @PathVariable String env,
                             @PathVariable String clusterName, @PathVariable String namespaceName,
                             @RequestBody ItemDTO item) {
+    //校验item格式是否正确
     checkModel(isValidItem(item));
 
     //protect
     item.setLineNum(0);
     item.setId(0);
+    // 设置 ItemDTO 的创建和修改人为当前管理员
     String userId = userInfoHolder.getUser().getUserId();
     item.setDataChangeCreatedBy(userId);
     item.setDataChangeLastModifiedBy(userId);
     item.setDataChangeCreatedTime(null);
     item.setDataChangeLastModifiedTime(null);
 
+    // 保存 Item 到 Admin Service
     return configService.createItem(appId, Env.valueOf(env), clusterName, namespaceName, item);
   }
 
@@ -226,6 +230,7 @@ public class ItemController {
   }
 
   private boolean isValidItem(ItemDTO item) {
+    //判断item不为空并且key不为空
     return Objects.nonNull(item) && !StringUtils.isContainEmpty(item.getKey());
   }
 

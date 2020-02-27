@@ -13,6 +13,11 @@ import javax.persistence.Table;
 @Where(clause = "isDeleted = 0")
 public class NamespaceLock extends BaseEntity{
 
+  /**
+   * Namespace 编号 {@link Namespace}
+   *
+   * 唯一索引
+   */
   @Column(name = "NamespaceId")
   private long namespaceId;
 

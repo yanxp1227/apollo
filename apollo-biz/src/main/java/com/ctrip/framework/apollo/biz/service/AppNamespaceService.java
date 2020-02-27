@@ -105,18 +105,23 @@ public class AppNamespaceService {
 
   @Transactional
   public AppNamespace createAppNamespace(AppNamespace appNamespace) {
+    //判断`name`在App下是否已经存在对应的AppNamespace对象.若存在则抛出 ServiceException 异常
     String createBy = appNamespace.getDataChangeCreatedBy();
     if (!isAppNamespaceNameUnique(appNamespace.getAppId(), appNamespace.getName())) {
       throw new ServiceException("appnamespace not unique");
     }
+    // 保护代码,避免App对象中,已经有id属性
     appNamespace.setId(0);//protection
     appNamespace.setDataChangeCreatedBy(createBy);
     appNamespace.setDataChangeLastModifiedBy(createBy);
 
+    //保存 AppNamespace 到数据库
     appNamespace = appNamespaceRepository.save(appNamespace);
 
+    //创建AppNamespace在App下,每个Cluster的Namespace
     createNamespaceForAppNamespaceInAllCluster(appNamespace.getAppId(), appNamespace.getName(), createBy);
 
+    //记录Audit到数据库中
     auditService.audit(AppNamespace.class.getSimpleName(), appNamespace.getId(), Audit.OP.INSERT, createBy);
     return appNamespace;
   }
@@ -133,8 +138,10 @@ public class AppNamespaceService {
   }
 
   public void createNamespaceForAppNamespaceInAllCluster(String appId, String namespaceName, String createBy) {
+    // 获取App下所有的Cluster数组
     List<Cluster> clusters = clusterService.findParentClusters(appId);
 
+    //循环Cluster数组,创建并保存到数据库中.
     for (Cluster cluster : clusters) {
 
       // in case there is some dirty data, e.g. public namespace deleted in other app and now created in this app

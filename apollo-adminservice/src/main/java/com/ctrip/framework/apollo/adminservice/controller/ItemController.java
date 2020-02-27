@@ -39,22 +39,28 @@ public class ItemController {
     this.commitService = commitService;
   }
 
-  @PreAcquireNamespaceLock
+  @PreAcquireNamespaceLock  //<Pb>
   @PostMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
   public ItemDTO create(@PathVariable("appId") String appId,
                         @PathVariable("clusterName") String clusterName,
                         @PathVariable("namespaceName") String namespaceName, @RequestBody ItemDTO dto) {
+    // 将 ItemDTO 转换成 Item 对象
     Item entity = BeanUtils.transform(Item.class, dto);
-
+    //创建 ConfigChangeContentBuilder 对象
     ConfigChangeContentBuilder builder = new ConfigChangeContentBuilder();
+    //校验Item 是否已经存在,若是抛出 BadRequestException 异常
     Item managedEntity = itemService.findOne(appId, clusterName, namespaceName, entity.getKey());
     if (managedEntity != null) {
       throw new BadRequestException("item already exists");
     }
+    //保存 Item 对象
     entity = itemService.save(entity);
+    //将Item 添加到 ConfigChangeContentBuilder 对象中
     builder.createItem(entity);
+    //将 Item 转换成ItemDTO对象
     dto = BeanUtils.transform(ItemDTO.class, entity);
 
+    // 创建 Commit 对象
     Commit commit = new Commit();
     commit.setAppId(appId);
     commit.setClusterName(clusterName);
@@ -62,6 +68,7 @@ public class ItemController {
     commit.setChangeSets(builder.build());
     commit.setDataChangeCreatedBy(dto.getDataChangeLastModifiedBy());
     commit.setDataChangeLastModifiedBy(dto.getDataChangeLastModifiedBy());
+    // 保存 Commit 对象
     commitService.save(commit);
 
     return dto;

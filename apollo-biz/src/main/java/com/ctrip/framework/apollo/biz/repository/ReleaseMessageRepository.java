@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * 提供 ReleaseMessage 的数据访问 给 Admin Service 和 Config Service
  * @author Jason Song(song_s@ctrip.com)
  */
 public interface ReleaseMessageRepository extends PagingAndSortingRepository<ReleaseMessage, Long> {

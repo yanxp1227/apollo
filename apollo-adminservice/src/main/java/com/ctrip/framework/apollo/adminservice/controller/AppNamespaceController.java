@@ -37,17 +37,20 @@ public class AppNamespaceController {
   @PostMapping("/apps/{appId}/appnamespaces")
   public AppNamespaceDTO create(@RequestBody AppNamespaceDTO appNamespace,
                                 @RequestParam(defaultValue = "false") boolean silentCreation) {
-
+    // 将 AppNamespaceDTO 转换成 AppNamespace 对象
     AppNamespace entity = BeanUtils.transform(AppNamespace.class, appNamespace);
+    //判断`name`在 App下是否已经存在对应的AppNamespace对象.
     AppNamespace managedEntity = appNamespaceService.findOne(entity.getAppId(), entity.getName());
 
     if (managedEntity == null) {
+      //设置AppNamespace的默认`format` 属性为 "properties"
       if (StringUtils.isEmpty(entity.getFormat())){
         entity.setFormat(ConfigFileFormat.Properties.getValue());
       }
-
+      //保存 AppNamespace 对象到数据库
       entity = appNamespaceService.createAppNamespace(entity);
     } else if (silentCreation) {
+      //补全缺失的Namespace
       appNamespaceService.createNamespaceForAppNamespaceInAllCluster(appNamespace.getAppId(), appNamespace.getName(),
           appNamespace.getDataChangeCreatedBy());
 
@@ -55,7 +58,7 @@ public class AppNamespaceController {
     } else {
       throw new BadRequestException("app namespaces already exist.");
     }
-
+    //将AppNamespace 对象转成AppNamespaceDTO对象返回
     return BeanUtils.transform(AppNamespaceDTO.class, entity);
   }
 

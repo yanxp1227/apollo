@@ -18,28 +18,48 @@ import javax.persistence.Table;
 @SQLDelete(sql = "Update Release set isDeleted = 1 where id = ?")
 @Where(clause = "isDeleted = 0")
 public class Release extends BaseEntity {
+
+  /**
+   * Release Key
+   *
+   * 【TODO 6006】用途？
+   */
   @Column(name = "ReleaseKey", nullable = false)
   private String releaseKey;
-
+  /**
+   * 标题
+   */
   @Column(name = "Name", nullable = false)
   private String name;
-
+  /**
+   * App 编号
+   */
   @Column(name = "AppId", nullable = false)
   private String appId;
-
+  /**
+   * Cluster 名字
+   */
   @Column(name = "ClusterName", nullable = false)
   private String clusterName;
-
+  /**
+   * Namespace 名字
+   */
   @Column(name = "NamespaceName", nullable = false)
   private String namespaceName;
-
+  /**
+   * 配置 Map 字符串，使用 JSON 格式化成字符串
+   */
   @Column(name = "Configurations", nullable = false)
   @Lob
   private String configurations;
-
+  /**
+   * 备注
+   */
   @Column(name = "Comment", nullable = false)
   private String comment;
-
+  /**
+   * 是否被回滚（放弃）
+   */
   @Column(name = "IsAbandoned", columnDefinition = "Bit default '0'")
   private boolean isAbandoned;
 

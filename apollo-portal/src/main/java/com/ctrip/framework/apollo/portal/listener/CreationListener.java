@@ -2,6 +2,7 @@ package com.ctrip.framework.apollo.portal.listener;
 
 import com.ctrip.framework.apollo.common.dto.AppDTO;
 import com.ctrip.framework.apollo.common.dto.AppNamespaceDTO;
+import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
@@ -51,8 +52,11 @@ public class CreationListener {
 
   @EventListener
   public void onAppNamespaceCreationEvent(AppNamespaceCreationEvent event) {
+    //将 AppNamespace 转成 AppNamespaceDTO对象
     AppNamespaceDTO appNamespace = BeanUtils.transform(AppNamespaceDTO.class, event.getAppNamespace());
+    //获取有效对的 Env 数组  <Pb>
     List<Env> envs = portalSettings.getActiveEnvs();
+    //循环 Env 数组,调用对应的Admin service 的API,创建AppNamespace对象
     for (Env env : envs) {
       try {
         namespaceAPI.createAppNamespace(env, appNamespace);

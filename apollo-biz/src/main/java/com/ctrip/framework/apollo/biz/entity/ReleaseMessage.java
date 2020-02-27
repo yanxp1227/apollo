@@ -18,17 +18,27 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "ReleaseMessage")
 public class ReleaseMessage {
+
+  /**
+   * 编号
+   */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "Id")
   private long id;
 
+  /**
+   * 消息内容，通过 {@link com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator#generate(String, String, String)} 方法生成。
+   */
   @Column(name = "Message", nullable = false)
   private String message;
-
+  /**
+   * 最后更新时间
+   */
   @Column(name = "DataChange_LastTime")
   private Date dataChangeLastModifiedTime;
 
+  /** 保存时执行该方法*/
   @PrePersist
   protected void prePersist() {
     if (this.dataChangeLastModifiedTime == null) {

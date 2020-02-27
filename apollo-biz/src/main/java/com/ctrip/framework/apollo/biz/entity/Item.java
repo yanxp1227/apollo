@@ -16,19 +16,36 @@ import javax.persistence.Table;
 @Where(clause = "isDeleted = 0")
 public class Item extends BaseEntity {
 
+  /**
+   * Namespace编号
+   */
   @Column(name = "NamespaceId", nullable = false)
   private long namespaceId;
 
+  /**
+   * 键:对于properties 每条对应一个key;对于yml等其他值对应一个key
+   */
   @Column(name = "key", nullable = false)
   private String key;
 
+  /**
+   * 值
+   */
   @Column(name = "value")
   @Lob
   private String value;
 
+  /**
+   * 注释
+   */
   @Column(name = "comment")
   private String comment;
 
+  /**
+   * 行号,从一开始.
+   *
+   * 例如 properties中多个配置项,每个配置项对应一行.
+   */
   @Column(name = "LineNum")
   private Integer lineNum;
 

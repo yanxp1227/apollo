@@ -75,19 +75,23 @@ public class AppNamespaceService {
 
   @Transactional
   public void createDefaultAppNamespace(String appId) {
+    //校验 `name`="application" 在App下唯一
     if (!isAppNamespaceNameUnique(appId, ConfigConsts.NAMESPACE_APPLICATION)) {
       throw new BadRequestException(String.format("App already has application namespace. AppId = %s", appId));
     }
 
+    //创建AppNamespace对象
     AppNamespace appNs = new AppNamespace();
     appNs.setAppId(appId);
     appNs.setName(ConfigConsts.NAMESPACE_APPLICATION);
     appNs.setComment("default app namespace");
     appNs.setFormat(ConfigFileFormat.Properties.getValue());
+    // 设置 AppNamespace的创建和修改人为当前用户名
     String userId = userInfoHolder.getUser().getUserId();
     appNs.setDataChangeCreatedBy(userId);
     appNs.setDataChangeLastModifiedBy(userId);
 
+    //保存 AppNamespace到数据库
     appNamespaceRepository.save(appNs);
   }
 
@@ -149,12 +153,15 @@ public class AppNamespaceService {
       if (appNamespaceRepository.findByAppIdAndName(appNamespace.getAppId(), appNamespace.getName()) != null) {
         throw new BadRequestException("Private AppNamespace " + appNamespace.getName() + " already exists!");
       }
+      //校验私有类型`name` 在 公用类型中是否存在
       // should not have the same with public app namespace
       checkPublicAppNamespaceGlobalUniqueness(appNamespace);
     }
 
+    //保存AppNamespace
     AppNamespace createdAppNamespace = appNamespaceRepository.save(appNamespace);
 
+    //初始化 Namespace 的 Role 们  <Pb>
     roleInitializationService.initNamespaceRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
     roleInitializationService.initNamespaceEnvRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
 
@@ -168,6 +175,7 @@ public class AppNamespaceService {
     //获取 AppNamespace的 `name` 在私有类型的所有列表
     List<AppNamespace> privateAppNamespaces = findAllPrivateAppNamespaces(appNamespace.getName());
 
+    //存在私有AppNamespace的`name`与公用AppNamespace的`name`相同则抛出 BadRequestException 异常
     if (!CollectionUtils.isEmpty(privateAppNamespaces)) {
       Set<String> appIds = Sets.newHashSet();
       for (AppNamespace ans : privateAppNamespaces) {
