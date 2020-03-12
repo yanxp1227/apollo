@@ -25,6 +25,7 @@ public class DefaultInjector implements Injector {
 
   public DefaultInjector() {
     try {
+      // 实例化 Injector 对象
       m_injector = Guice.createInjector(new ApolloModule());
     } catch (Throwable ex) {
       ApolloConfigException exception = new ApolloConfigException("Unable to initialize Guice Injector!", ex);
@@ -33,9 +34,11 @@ public class DefaultInjector implements Injector {
     }
   }
 
+
   @Override
   public <T> T getInstance(Class<T> clazz) {
     try {
+      //通过类型获取实例对象
       return m_injector.getInstance(clazz);
     } catch (Throwable ex) {
       Tracer.logError(ex);
@@ -46,6 +49,7 @@ public class DefaultInjector implements Injector {
 
   @Override
   public <T> T getInstance(Class<T> clazz, String name) {
+    //该方法直接返回null，Guice不支持通过类型和类名查找实例。
     //Guice does not support get instance by type and name
     return null;
   }

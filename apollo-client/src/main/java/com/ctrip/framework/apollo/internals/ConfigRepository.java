@@ -4,16 +4,20 @@ import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import java.util.Properties;
 
 /**
+ * 配置接口
+ *
  * @author Jason Song(song_s@ctrip.com)
  */
 public interface ConfigRepository {
   /**
+   * 读取配置
    * Get the config from this repository.
    * @return config
    */
   public Properties getConfig();
 
   /**
+   * 设置上游的 Repository 。主要用于 LocalFileConfigRepository ，从 Config Service 读取配置，缓存在本地文件
    * Set the fallback repo for this repository.
    * @param upstreamConfigRepository the upstream repo
    */

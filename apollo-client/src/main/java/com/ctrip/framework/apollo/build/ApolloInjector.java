@@ -12,11 +12,16 @@ public class ApolloInjector {
   private static volatile Injector s_injector;
   private static final Object lock = new Object();
 
+  /**
+   * 获取 Injector 实例
+   * @return
+   */
   private static Injector getInjector() {
     if (s_injector == null) {
       synchronized (lock) {
         if (s_injector == null) {
           try {
+            //创建Injector实例
             s_injector = ServiceBootstrap.loadFirst(Injector.class);
           } catch (Throwable ex) {
             ApolloConfigException exception = new ApolloConfigException("Unable to initialize Apollo Injector!", ex);
@@ -41,6 +46,7 @@ public class ApolloInjector {
 
   public static <T> T getInstance(Class<T> clazz, String name) {
     try {
+      //目前只支持Guice获取指定类型对象,但Guice不支持通过类型和名字获取
       return getInjector().getInstance(clazz, name);
     } catch (Throwable ex) {
       Tracer.logError(ex);
