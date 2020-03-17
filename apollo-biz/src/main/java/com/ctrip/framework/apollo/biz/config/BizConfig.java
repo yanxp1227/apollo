@@ -43,11 +43,15 @@ public class BizConfig extends RefreshableConfig {
 
   @Override
   protected List<RefreshablePropertySource> getRefreshablePropertySources() {
+    //返回 BizDBPropertySource 对象的数组。
     return Collections.singletonList(propertySource);
   }
 
+  // 获得 Eureka 服务器地址的数组
   public List<String> eurekaServiceUrls() {
+    // 获得配置值
     String configuration = getValue("eureka.service.url", "");
+    // 分隔成 List
     if (Strings.isNullOrEmpty(configuration)) {
       return Collections.emptyList();
     }

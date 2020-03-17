@@ -11,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
+ * portal 侧的ServerConfig实体，服务器KV配置项
+ *
  * @author Jason Song(song_s@ctrip.com)
  */
 @Entity

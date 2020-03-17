@@ -31,10 +31,11 @@ public class ServerConfigController {
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @PostMapping("/server/config")
   public ServerConfig createOrUpdate(@Valid @RequestBody ServerConfig serverConfig) {
+    // 获得操作人为当前管理员
     String modifiedBy = userInfoHolder.getUser().getUserId();
-
+    // 查询当前 DB 里的对应的 ServerConfig 对象
     ServerConfig storedConfig = serverConfigRepository.findByKey(serverConfig.getKey());
-
+    // 若不存在，则进行新增
     if (Objects.isNull(storedConfig)) {//create
       serverConfig.setDataChangeCreatedBy(modifiedBy);
       serverConfig.setDataChangeLastModifiedBy(modifiedBy);
@@ -42,6 +43,7 @@ public class ServerConfigController {
       return serverConfigRepository.save(serverConfig);
     }
     //update
+    // 若存在，则进行更新
     BeanUtils.copyEntityProperties(serverConfig, storedConfig);
     storedConfig.setDataChangeLastModifiedBy(modifiedBy);
     return serverConfigRepository.save(storedConfig);

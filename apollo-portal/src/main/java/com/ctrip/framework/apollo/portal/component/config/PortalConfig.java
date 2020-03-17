@@ -35,13 +35,16 @@ public class PortalConfig extends RefreshableConfig {
 
   @Override
   public List<RefreshablePropertySource> getRefreshablePropertySources() {
+    //返回 PortalDBPropertySource 对象的数组。
     return Collections.singletonList(portalDBPropertySource);
   }
 
   /***
+   * 获得 Env 集合
    * Level: important
    **/
   public List<Env> portalSupportedEnvs() {
+    // 获得配置项
     String[] configurations = getArrayProperty("apollo.portal.envs", new String[]{"FAT", "UAT", "PRO"});
     List<Env> envs = Lists.newLinkedList();
 

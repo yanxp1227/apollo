@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
+ * 提供给 Config Service、Admin Service 服务使用的KV配置项
+ *
  * @author Jason Song(song_s@ctrip.com)
  */
 @Entity
